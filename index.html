@@ -1,728 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animated Knapsack Visualizer</title>
-    <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --accent-color: #e74c3c;
-            --light-bg: #f8f9fa;
-            --dark-bg: #343a40;
-            --text-color: #333;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            --transition: all 0.5s ease;
-        }
+    <title>Fractional Knapsack Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-
-        h2 {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-            padding: 10px 30px 30px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .input-section {
-            background: white;
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            position: sticky;
-            top: 20px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .input-section label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark-bg);
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .item-inputs {
-            margin: 15px 0;
-            padding: 15px;
-            background: var(--light-bg);
-            border-radius: var(--border-radius);
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .item-input-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .item-input-row span {
-            width: 70px;
-            font-weight: 500;
-        }
-
-        .visualization {
-            background: white;
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            min-height: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .item-box {
-            margin: 15px 0;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            background: white;
-            box-shadow: var(--box-shadow);
-            transition: var(--transition);
-            opacity: 0;
-            border-left: 5px solid var(--primary-color);
-            animation: slideIn 0.5s ease-out forwards;
-        }
-
-        .item-box:first-child {
-            border-left: 5px solid var(--accent-color);
-            background-color: #fef9f9;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .progress-container {
-            height: 30px;
-            background: var(--light-bg);
-            border-radius: 15px;
-            overflow: hidden;
-            margin: 20px 0;
-            position: relative;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .progress-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
-            transition: width 0.5s ease-in-out;
-            border-radius: 15px;
-        }
-
-        .progress-label {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 1em;
-            font-weight: bold;
-            z-index: 1;
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
-        }
-
-        .filled {
-            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
-            height: 20px;
-            border-radius: 10px;
-            animation: fillWidth 1s ease-out forwards;
-        }
-
-        @keyframes fillWidth {
-            from { width: 0; }
-            to { width: var(--target-width); }
-        }
-
-        .processing {
-            box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
-            transform: scale(1.03);
-            border-left: 5px solid var(--accent-color);
-        }
-
-        button {
-            background: var(--primary-color);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            margin-top: 15px;
-            margin-right: 10px;
-            font-weight: 600;
-            transition: var(--transition);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        button:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        button:active {
-            transform: translateY(1px);
-        }
-
-        button.secondary {
-            background: var(--secondary-color);
-        }
-
-        button.secondary:hover {
-            background: #27ae60;
-        }
-
-        input {
-            margin: 5px 0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-
-        .ratio-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0 30px;
-            box-shadow: var(--box-shadow);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-        }
-
-        .ratio-table th, .ratio-table td {
-            border: 1px solid #e6e6e6;
-            padding: 12px;
-            text-align: left;
-        }
-
-        .ratio-table th {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .ratio-table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .slide-down {
-            animation: slideDown 0.5s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .knapsack-header {
-            text-align: center;
-            margin: 20px 0;
-            color: var(--dark-bg);
-        }
-
-        .knapsack-header h1 {
-            margin: 0;
-            color: var(--primary-color);
-        }
-
-        .knapsack-header p {
-            color: #666;
-            margin: 5px 0 15px;
-        }
-
-        .speed-control {
-            margin: 20px 0;
-            padding: 15px;
-            background: var(--light-bg);
-            border-radius: var(--border-radius);
-        }
-
-        .speed-control label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .speed-slider {
-            width: 100%;
-            height: 10px;
-            appearance: none;
-            background: #ddd;
-            outline: none;
-            border-radius: 5px;
-        }
-
-        .speed-slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-        }
-
-        .speed-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .result-card {
-            background: var(--light-bg);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin-top: 20px;
-            box-shadow: var(--box-shadow);
-            transition: var(--transition);
-        }
-
-        .fill-bar-container {
-            width: 100%;
-            background: #eee;
-            margin: 10px 0;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .taken-amount {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        /* Solution display improvements */
-        .solution-info {
-            display: flex;
-            justify-content: space-between;
-            background: var(--light-bg);
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            box-shadow: var(--box-shadow);
-        }
-
-        .solution-info div {
-            text-align: center;
-        }
-
-        .solution-info .value {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .solution-info .label {
-            font-size: 14px;
-            color: #666;
-        }
-        
-        /* Final solution animation */
-        .final-solution {
-            opacity: 0;
-            transform: scale(0.95);
-            transition: all 1s ease;
-        }
-        
-        .final-solution.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-        
-        .two-columns {
-            display: grid;
-            grid-template-columns: auto auto;
-            gap: 15px;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/sack.css">
 </head>
+
 <body>
-<div class="knapsack-header">
-    <h1>Fractional Knapsack Problem Visualizer</h1>
-    <p>Interactive visualization of the greedy algorithm solution</p>
-</div>
 
-<div class="container">
-    <div class="input-section">
-        <h2>Knapsack Parameters</h2>
-        
-        <div class="input-group">
-            <label for="capacity">Knapsack Capacity:</label>
-            <input type="number" id="capacity" min="1" placeholder="Enter maximum weight">
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            KnapSack Viz
         </div>
-        
-        <div class="input-group">
-            <label for="itemCount">Number of Items:</label>
-            <input type="number" id="itemCount" min="1" placeholder="Enter number of items">
+        <div class="header-controls">
+            <!-- Add language or other controls here if needed -->
         </div>
-        
-        <div class="button-group">
-            <button onclick="generateItemInputs()">Generate Item Fields</button>
-            <button onclick="generateRandomItems()" class="secondary">Random Items</button>
-        </div>
+    </header>
 
-        <div class="item-inputs" id="itemInputs"></div>
-        
-        <div class="speed-control">
-            <label for="speedSlider">Animation Speed:</label>
-            <input type="range" min="1" max="4" value="2" class="speed-slider" id="speedSlider">
-            <div class="speed-labels">
-                <span>Very Slow</span>
-                <span>Slow</span>
-                <span>Medium</span>
-                <span>Fast</span>
+    <div class="container">
+
+        <!-- Left Sidebar: Controls -->
+        <aside class="controls-panel">
+            <h3>Configuration</h3>
+
+            <div class="input-group">
+                <label for="capacity">Knapsack Capacity</label>
+                <input type="number" id="capacity" placeholder="Enter max capacity" value="50">
             </div>
-        </div>
-        
-        <button onclick="solveKnapsack()" id="solveButton">Solve Knapsack</button>
+
+            <div class="input-group">
+                <label for="item-count">Number of Items</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="item-count" value="5" min="1" max="20" style="width: 80px;">
+                    <button class="btn-secondary" id="generate-btn" style="flex: 1;">Set Count</button>
+                </div>
+            </div>
+
+            <div class="divider" style="height: 1px; background: #e9ecef; margin: 10px 0;"></div>
+
+            <div class="input-group">
+                <label>Items (Weight / Value)</label>
+                <div class="btn-group">
+                    <button class="btn-secondary" id="random-btn">Randomize All</button>
+                </div>
+                <div class="items-container" id="items-inputs-container">
+                    <!-- Dynamic inputs -->
+                </div>
+            </div>
+
+            <div class="divider" style="height: 1px; background: #e9ecef; margin: 10px 0;"></div>
+
+            <div class="input-group">
+                <label>Animation Speed: <span id="speed-display">1x</span></label>
+                <input type="range" id="speed-range" min="0" max="4" value="2" step="1" style="width: 100%;">
+            </div>
+
+            <button class="btn-primary" id="solve-btn" style="margin-top: auto;">VOLARIZE & SOLVE</button>
+        </aside>
+
+        <!-- Main Visualization Area -->
+        <main>
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-value">0.00</div>
+                    <div class="stat-label">Total Gained Value</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-percentage" style="color: var(--secondary-color); font-weight: 700;"></div>
+                    <div class="stat-value" id="stat-percentage">0%</div>
+                    <div class="stat-label">Fullness</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-weight">0 / 0</div>
+                    <div class="stat-label">Current Weight</div>
+                </div>
+            </div>
+
+            <div class="visualizer-card">
+                <div class="vis-layout">
+                    <!-- The Sack Itself -->
+                    <div class="sack-section">
+                        <div class="sack-container">
+                            <div class="sack-rim"></div>
+                            <div class="sack-body">
+                                <div class="sack-fill-area">
+                                    <!-- Dynamic Sack Items -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Items Pool -->
+                    <div class="pool-section" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h4 style="margin: 0; font-size: 0.9rem; color: var(--text-light);">Available Items Pool
+                            </h4>
+                            <div class="legend" style="display: flex; gap: 10px; font-size: 0.75rem;">
+                                <span style="color: #2ecc71; font-weight: bold;">● Taken</span>
+                                <span style="color: #f1c40f; font-weight: bold;">● Partial</span>
+                                <span style="color: #e74c3c; font-weight: bold;">● Not Taken</span>
+                            </div>
+                        </div>
+                        <div class="items-pool-area" id="items-pool">
+                            <!-- Dynamic Pool Items -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Execution Log -->
+            <div class="log-card">
+                <div class="log-header">
+                    <h4>Execution Log</h4>
+                    <span class="log-badge" id="log-status">Ready</span>
+                </div>
+                <div class="log-content" id="execution-log">
+                    <div class="log-placeholder">Run the simulation to see events here...</div>
+                </div>
+            </div>
+        </main>
+
     </div>
 
-    <div class="visualization" id="visualization">
-        <h2>Solution Visualization</h2>
-        <div id="result"></div>
-        <div id="ratioTableContainer"></div>
-        <div id="itemsVis"></div>
-    </div>
-</div>
-
-<script>
-    let animationSpeed = 2; // Default speed (range 1-4)
-    
-    document.getElementById('speedSlider').addEventListener('input', function() {
-        animationSpeed = parseInt(this.value);
-    });
-    
-    function getAnimationDuration() {
-        // Map speed setting to duration in milliseconds (slower speeds)
-        const durations = {
-            1: 5000, // Very slow
-            2: 3000, // Slow 
-            3: 1500, // Medium
-            4: 800   // Fast
-        };
-        return durations[animationSpeed] || 3000;
-    }
-    
-    function getTransitionDelay() {
-        // Delay between steps
-        const delays = {
-            1: 2500, // Very slow
-            2: 1500, // Slow
-            3: 800,  // Medium
-            4: 400   // Fast
-        };
-        return delays[animationSpeed] || 1500;
-    }
-
-    function generateItemInputs() {
-        const count = parseInt(document.getElementById('itemCount').value);
-        if (isNaN(count) || count <= 0) {
-            alert("Please enter a valid number of items");
-            return;
-        }
-        
-        const container = document.getElementById('itemInputs');
-        container.innerHTML = '';
-
-        for (let i = 0; i < count; i++) {
-            const itemRow = document.createElement('div');
-            itemRow.className = 'item-input-row';
-            itemRow.innerHTML = `
-                <span>Item ${i + 1}:</span>
-                <input type="number" class="weight" placeholder="Weight" min="1">
-                <input type="number" class="value" placeholder="Value" min="1">
-            `;
-            container.appendChild(itemRow);
-        }
-    }
-
-    function generateRandomItems() {
-        const itemCount = parseInt(document.getElementById('itemCount').value);
-        
-        if (isNaN(itemCount) || itemCount <= 0) {
-            alert("Please enter a valid number of items");
-            return;
-        }
-        
-        generateItemInputs();
-
-        const weights = document.getElementsByClassName('weight');
-        const values = document.getElementsByClassName('value');
-
-        for (let i = 0; i < itemCount; i++) {
-            weights[i].value = Math.floor(Math.random() * 10) + 1;
-            values[i].value = Math.floor(Math.random() * 20) + 10;
-        }
-    }
-
-    async function solveKnapsack() {
-        const solveButton = document.getElementById('solveButton');
-        solveButton.disabled = true;
-        solveButton.textContent = 'Solving...';
-        
-        const items = [];
-        const weights = document.getElementsByClassName('weight');
-        const values = document.getElementsByClassName('value');
-        const capacity = parseFloat(document.getElementById('capacity').value);
-        
-        if (isNaN(capacity) || capacity <= 0) {
-            alert("Please enter a valid capacity");
-            solveButton.disabled = false;
-            solveButton.textContent = 'Solve Knapsack';
-            return;
-        }
-        
-        document.getElementById('result').innerHTML = "";
-        document.getElementById('itemsVis').innerHTML = "";
-
-        for (let i = 0; i < weights.length; i++) {
-            const weight = parseFloat(weights[i].value);
-            const value = parseFloat(values[i].value);
-
-            if (!Number.isNaN(weight) && !Number.isNaN(value) && weight > 0 && value > 0) {
-                items.push({
-                    id: i + 1,
-                    weight,
-                    value,
-                    ratio: value / weight
-                });
-            }
-        }
-
-        if (items.length === 0) {
-            alert("Please enter valid weights and values for the items.");
-            solveButton.disabled = false;
-            solveButton.textContent = 'Solve Knapsack';
-            return;
-        }
-
-        items.sort((a, b) => b.ratio - a.ratio);
-        displayRatioTable(items);
-
-        // Scroll to ensure the table is visible
-        document.getElementById('ratioTableContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        await new Promise(r => setTimeout(r, 500));
-
-        let remaining = capacity;
-        let totalValue = 0;
-        const visContainer = document.getElementById('itemsVis');
-        
-        // Create progress bar
-        const progressContainer = document.createElement('div');
-        progressContainer.className = 'progress-container';
-        progressContainer.innerHTML = `
-            <div class="progress-bar" style="width: 0%"></div>
-            <div class="progress-label">0/${capacity}</div>
-        `;
-        document.getElementById('result').appendChild(progressContainer);
-        
-        const progressBar = progressContainer.querySelector('.progress-bar');
-        const progressLabel = progressContainer.querySelector('.progress-label');
-
-        // Create initial solution info card
-        const solutionInfo = document.createElement('div');
-        solutionInfo.className = 'solution-info slide-down';
-        solutionInfo.innerHTML = `
-            <div>
-                <div class="value">0.00</div>
-                <div class="label">Total Value</div>
-            </div>
-            <div>
-                <div class="value">0.00/${capacity}</div>
-                <div class="label">Capacity Used</div>
-            </div>
-        `;
-        document.getElementById('result').appendChild(solutionInfo);
-        
-        const duration = getAnimationDuration();
-        const delayBetweenItems = getTransitionDelay();
-
-        for (const [index, item] of items.entries()) {
-            if (remaining <= 0) break;
-
-            const takeWeight = Math.min(item.weight, remaining);
-            const fraction = takeWeight / item.weight;
-            const valueGained = item.value * fraction;
-            
-            totalValue += valueGained;
-            remaining -= takeWeight;
-
-            const elem = document.createElement('div');
-            elem.className = 'item-box';
-            elem.style.setProperty('--target-width', `${fraction * 100}%`);
-            elem.innerHTML = `
-                <div style="display: flex; justify-content: space-between;">
-                    <strong>Item ${item.id}</strong>
-                    <span>Value/Weight: ${item.ratio.toFixed(2)}</span>
-                </div>
-                <div style="margin: 10px 0;">
-                    <div>Weight: ${item.weight} | Value: ${item.value}</div>
-                </div>
-                <div class="fill-bar-container">
-                    <div class="filled" style="width: 0"></div>
-                </div>
-                <div class="taken-amount">Taken: 0 (0%)</div>
-            `;
-            
-            // Add new item at the beginning
-            if (visContainer.firstChild) {
-                visContainer.insertBefore(elem, visContainer.firstChild);
-            } else {
-                visContainer.appendChild(elem);
-            }
-
-            // Scroll to ensure the new item is visible
-            if (index === 0) {
-                elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-
-            elem.classList.add('processing');
-            await new Promise(r => setTimeout(r, duration));
-
-            const fill = elem.querySelector('.filled');
-            const takenAmount = elem.querySelector('.taken-amount');
-            fill.style.width = `${fraction * 100}%`;
-
-            animateValue(takenAmount, 0, takeWeight, duration,
-                v => `Taken: ${v.toFixed(2)} (${(v / item.weight * 100).toFixed(1)}%)`);
-
-            const usedCapacity = capacity - remaining;
-            const newWidth = (usedCapacity / capacity * 100).toFixed(2);
-            progressBar.style.width = `${newWidth}%`;
-            progressLabel.textContent = `${usedCapacity.toFixed(2)}/${capacity}`;
-
-            // Update solution info
-            const valueDisplay = solutionInfo.querySelectorAll('.value');
-            animateValue(valueDisplay[0], totalValue - valueGained, totalValue, duration, v => v.toFixed(2));
-            animateValue(valueDisplay[1], usedCapacity - takeWeight, usedCapacity, duration, v => `${v.toFixed(2)}/${capacity}`);
-
-            elem.classList.remove('processing');
-            await new Promise(r => setTimeout(r, delayBetweenItems));
-        }
-
-        // Create final solution with delay
-        await new Promise(r => setTimeout(r, duration));
-        
-        // Final update to solution display
-        const finalSolution = document.createElement('div');
-        finalSolution.className = 'result-card final-solution';
-        finalSolution.innerHTML = `
-            <h3>Final Solution</h3>
-            <div class="two-columns">
-                <div>
-                    <p>Total Value: <strong>${totalValue.toFixed(2)}</strong></p>
-                    <p>Capacity Used: <strong>${(capacity - remaining).toFixed(2)}/${capacity}</strong> (${((capacity - remaining) / capacity * 100).toFixed(1)}%)</p>
-                </div>
-                <div>
-                    <p>Items Used: <strong>${items.filter(item => remaining < capacity).length}</strong></p>
-                    <p>Remaining Capacity: <strong>${remaining.toFixed(2)}</strong></p>
-                </div>
-            </div>
-        `;
-        document.getElementById('result').appendChild(finalSolution);
-        
-        // Show final solution with animation
-        setTimeout(() => {
-            finalSolution.classList.add('show');
-        }, 200);
-        
-        solveButton.disabled = false;
-        solveButton.textContent = 'Solve Knapsack';
-    }
-
-    function animateValue(element, start, end, duration, textCallback) {
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            const current = start + progress * (end - start);
-            element.textContent = textCallback(current);
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
-        };
-        window.requestAnimationFrame(step);
-    }
-
-    function displayRatioTable(items) {
-        const tableContainer = document.getElementById('ratioTableContainer');
-        tableContainer.innerHTML = '<h3>Items Sorted by Value/Weight Ratio</h3>';
-
-        const table = document.createElement('table');
-        table.className = 'ratio-table slide-down';
-
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        const headers = ['Item #', 'Weight', 'Value', 'Value/Weight Ratio'];
-        headers.forEach(text => {
-            const th = document.createElement('th');
-            th.textContent = text;
-            headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        const tbody = document.createElement('tbody');
-        items.forEach((item, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${item.id}</td>
-                <td>${item.weight}</td>
-                <td>${item.value}</td>
-                <td>${item.ratio.toFixed(2)}</td>
-            `;
-            tbody.appendChild(row);
-        });
-        table.appendChild(tbody);
-
-        tableContainer.appendChild(table);
-    }
-
-</script>
-
+    <!-- Scripts: Loaded sequentially to avoid module/file:// issues -->
+    <script src="assets/js/algorithm.js"></script>
+    <script src="assets/js/sack.js"></script>
+    <script src="assets/js/ui.js"></script>
 </body>
+
 </html>

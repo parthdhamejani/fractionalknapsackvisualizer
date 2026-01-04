@@ -1,0 +1,261 @@
+/* The Sack Container */
+.sack-container {
+    position: relative;
+    width: 300px;
+    height: 400px;
+    margin: 0 auto;
+    perspective: 1000px;
+}
+
+.sack-body {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.4);
+    border: 4px solid var(--text-color);
+    border-top: none;
+    border-radius: 0 0 40px 40px;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    box-shadow:
+        inset 0 -10px 20px rgba(0, 0, 0, 0.1),
+        0 20px 40px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+.sack-rim {
+    position: absolute;
+    top: 0;
+    left: -10px;
+    width: calc(100% + 20px);
+    height: 20px;
+    background: var(--text-color);
+    border-radius: 10px;
+    z-index: 5;
+}
+
+.sack-fill-area {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+    /* Items stack from bottom */
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0;
+    /* We handle positioning absolute for items to animate them falling */
+}
+
+/* Items inside the sack */
+.sack-item {
+    position: absolute;
+    width: 90%;
+    left: 5%;
+    background: var(--primary-color);
+    border-radius: 4px;
+    /* Slight rounding */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    box-shadow:
+        inset 0 0 10px rgba(0, 0, 0, 0.2),
+        0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    opacity: 0;
+    transform: translateY(-400px);
+    /* Start directly above */
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sack-item.falling {
+    opacity: 1;
+    /* Custom transform set by JS for final position */
+}
+
+.sack-item-label {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.sack-item-shimmer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg,
+            rgba(255, 255, 255, 0) 40%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0) 60%);
+    z-index: 1;
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Item Waiting Queue (Visual on the side) */
+.item-queue {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f1f3f5;
+    border-radius: 8px;
+    overflow-x: auto;
+    min-height: 80px;
+}
+
+.queue-item {
+    min-width: 60px;
+    height: 60px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    transition: all 0.3s;
+}
+
+.queue-item.active {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+}
+
+.queue-item.taken {
+    opacity: 0.5;
+    transform: scale(0.9);
+    background: #eee;
+}
+
+/* Visualization Layout */
+.vis-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: auto;
+    /* margin-bottom removed */
+}
+
+.items-pool-area {
+    padding: 15px;
+    background: white;
+    border-radius: 12px;
+    border: 1px dashed #ced4da;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    /* Center items in pool */
+    gap: 10px;
+    overflow-y: visible;
+    /* Allow flow */
+    min-height: 80px;
+}
+
+.pool-item {
+    width: 80px;
+    height: 80px;
+    background: var(--card-bg);
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.pool-item:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.pool-item-inner {
+    text-align: center;
+}
+
+.pool-item strong {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--primary-dark);
+}
+
+.pool-item span {
+    font-size: 0.7rem;
+    color: var(--text-light);
+}
+
+.pool-item.pool-taken-full {
+    background-color: #2ecc71;
+    /* Green */
+    border-color: #27ae60;
+    color: white;
+}
+
+.pool-item.pool-taken-full strong,
+.pool-item.pool-taken-full span {
+    color: white;
+}
+
+.pool-item.pool-taken-partial {
+    background-color: #f1c40f;
+    /* Yellow */
+    border-color: #f39c12;
+    color: #333;
+}
+
+.pool-item.pool-taken-partial strong,
+.pool-item.pool-taken-partial span {
+    color: #333;
+}
+
+.pool-item.pool-not-taken {
+    background-color: #e74c3c;
+    /* Red */
+    border-color: #c0392b;
+    color: white;
+    opacity: 0.8;
+}
+
+.pool-item.pool-not-taken strong,
+.pool-item.pool-not-taken span {
+    color: white;
+}
+
+.pool-item.selected-animate {
+    position: fixed;
+    z-index: 1000;
+    transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+    pointer-events: none;
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+}
+
+.pool-item.selected-animate span {
+    color: rgba(255, 255, 255, 0.8);
+}
